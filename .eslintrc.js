@@ -10,6 +10,7 @@ module.exports = {
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
+    __DEV__: true
   },
   parserOptions: {
     ecmaVersion: 2018,
@@ -17,7 +18,6 @@ module.exports = {
   },
   plugins: [
     'react',
-    'jsx-a11y',
     'prettier'
   ],
   rules: {
