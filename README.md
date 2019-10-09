@@ -3,8 +3,8 @@
 This application use the MCUAPI
 
 ## Prototype Previews
-<div style="background: #333; padding: 10px; display: flex; flex-direction: row;">
-  <img src="./previews/Main.png" style="padding: 5px">
-  <img src="./previews/Watched.png" style="padding: 5px">
-  <img src="./previews/About.png" style="padding: 5px">
+<div display: flex; flex-direction: row;">
+  <img src="./previews/Main.png" style="padding: 5px; border: 1px solid #222">
+  <img src="./previews/Watched.png" style="padding: 5px; border: 1px solid #222">
+  <img src="./previews/About.png" style="padding: 5px; border: 1px solid #222">
 </div>
