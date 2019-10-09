@@ -14,8 +14,6 @@ const Routes = createAppContainer(
     },
     {
       initialRouteName: 'About',
-    },
-    {
       tabBarOptions: {
         keyboardHidesTabBar: true,
         activeTintColor: '#000',
