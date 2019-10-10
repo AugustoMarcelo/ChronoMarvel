@@ -8,9 +8,9 @@ import Movies from './pages/Movies';
 const Routes = createAppContainer(
   createBottomTabNavigator(
     {
-      About,
       Movies,
       Watched,
+      About,
     },
     {
       initialRouteName: 'About',
