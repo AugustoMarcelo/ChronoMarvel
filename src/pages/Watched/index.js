@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import Header from '../../components/Header';
+import Background from '../../components/Background';
+
 export default function Watched() {
   return (
-    <View>
+    <Background>
+      <Header />
       <Text>Watched Page</Text>
-    </View>
+    </Background>
   );
 }
 
