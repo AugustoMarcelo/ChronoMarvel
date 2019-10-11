@@ -9,8 +9,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-
-    elevation: 2,
+    elevation: 3,
   },
   logo: {
     width: 48,
