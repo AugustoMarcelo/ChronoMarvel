@@ -1,9 +1,9 @@
 import Realm from 'realm';
 
-import WatchedSchema from '../schemas/WatchedSchema';
+import MovieSchema from '../schemas/MovieSchema';
 
 export default function getRealm() {
   return Realm.open({
-    schema: [WatchedSchema],
+    schema: [MovieSchema],
   });
 }
