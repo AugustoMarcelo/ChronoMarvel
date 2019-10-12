@@ -17,11 +17,16 @@ import getRealm from '../../services/realm';
 
 import Header from '../../components/Header';
 import Background from '../../components/Background';
-import { Shadow, Separator, Card, CardTop, MoreInfo } from './styles';
+import { Shadow, Separator, Card, CardTop, MoreInfo, Button } from './styles';
 
 const styles = StyleSheet.create({
   list: {
     marginTop: 20,
+  },
+  listEmpty: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   cover: {
     borderRadius: 4,
@@ -73,11 +78,28 @@ export default function Movies() {
   useEffect(() => {
     async function loadMovies() {
       try {
-        const response = await api.get('/movies', {
-          params: { order: 'chronology' },
-        });
+        const realm = await getRealm();
 
-        setMovies(response.data.data);
+        const data = realm.objects('Movie').sorted('chronology');
+
+        if (data.length > 0) {
+          setMovies(data);
+        } else {
+          const response = await api.get('/movies', {
+            params: { order: 'chronology' },
+          });
+
+          setMovies(response.data.data);
+
+          response.data.data.map(movie =>
+            realm.write(() =>
+              realm.create('Movie', {
+                ...movie,
+                watched: '',
+              })
+            )
+          );
+        }
       } catch (err) {
         if (err.status === 500) {
           setError('Unable to connect to server');
@@ -91,59 +113,49 @@ export default function Movies() {
 
   function handleSelectMovie(id) {
     const [movie] = movies.filter(item => item.id === id);
-    movie.release_date = movie.release_date.split('-', 1)[0];
+    // movie.release_date = movie.release_date.split('-', 1)[0];
     setSelected(movie);
   }
 
   async function handleMarkAsWatched(movie) {
-    const { id, title, cover_url } = movie;
     const data = {
-      id,
-      title,
-      cover_url,
+      ...movie,
       watched: new Date().toISOString(),
     };
 
     const realm = await getRealm();
 
     realm.write(() => {
-      realm.create('Watched', data);
+      realm.create('Movie', data, true);
     });
+
+    setSelected(data);
   }
 
   return (
     <Background>
       <Header />
       <ScrollView>
-        {movies.length > 0 ? (
-          <FlatList
-            ref={flatList}
-            style={styles.list}
-            data={movies}
-            keyExtractor={movie => String(movie.id)}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            removeClippedSubviews
-            maxToRenderPerBatch={3}
-            initialNumToRender={3}
-            renderItem={({ item }) => (
-              <Shadow>
-                <TouchableOpacity onPress={() => handleSelectMovie(item.id)}>
-                  <Image
-                    style={styles.cover}
-                    source={{ uri: item.cover_url }}
-                  />
-                </TouchableOpacity>
-              </Shadow>
-            )}
-          />
-        ) : (
-          <ActivityIndicator
-            style={{ marginTop: 20 }}
-            size={32}
-            color="#D63031"
-          />
-        )}
+        <FlatList
+          ref={flatList}
+          style={styles.list}
+          data={movies}
+          keyExtractor={movie => String(movie.id)}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          removeClippedSubviews
+          maxToRenderPerBatch={3}
+          initialNumToRender={3}
+          contentContainerStyle={movies.length === 0 && styles.listEmpty}
+          renderItem={({ item }) => (
+            <Shadow>
+              <TouchableOpacity onPress={() => handleSelectMovie(item.id)}>
+                <Image style={styles.cover} source={{ uri: item.cover_url }} />
+              </TouchableOpacity>
+            </Shadow>
+          )}
+          ListEmptyComponent={<ActivityIndicator size={32} color="#D63031" />}
+        />
 
         <Separator />
 
@@ -171,7 +183,9 @@ export default function Movies() {
                 </View>
                 <View>
                   <Text style={styles.label}>Year</Text>
-                  <Text style={styles.info}>{selected.release_date}</Text>
+                  <Text style={styles.info}>
+                    {selected.release_date.split('-', 1)[0]}
+                  </Text>
                 </View>
                 <View>
                   <Text style={styles.label}>Phase</Text>
@@ -185,12 +199,14 @@ export default function Movies() {
             </CardTop>
             <Text style={styles.title}>{selected.title}</Text>
             <Text style={styles.description}>{selected.overview}</Text>
-            <TouchableOpacity
-              style={styles.button}
+            <Button
+              disabled={!!selected.watched}
               onPress={() => handleMarkAsWatched(selected)}
             >
-              <Text style={styles.buttonText}>Mark as watched!</Text>
-            </TouchableOpacity>
+              <Text style={styles.buttonText}>
+                {selected.watched ? 'Watched!' : 'Mark as watched!'}
+              </Text>
+            </Button>
           </Card>
         ) : (
           <Card style={{ alignItems: 'center' }}>

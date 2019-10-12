@@ -30,3 +30,12 @@ export const CardTop = styled.View`
 export const MoreInfo = styled.View`
   margin-left: 10px;
 `;
+
+export const Button = styled.TouchableOpacity`
+  elevation: 1;
+  background: ${props => (props.disabled ? '#bbb' : '#00b894')};
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 2px;
+`;
