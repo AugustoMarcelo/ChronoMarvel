@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import api from '../../services/api';
+import getRealm from '../../services/realm';
 
 import Header from '../../components/Header';
 import Background from '../../components/Background';
@@ -26,7 +27,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 218,
     width: 150,
-    // marginHorizontal: 10,
   },
   label: {
     fontSize: 13,
@@ -95,6 +95,22 @@ export default function Movies() {
     setSelected(movie);
   }
 
+  async function handleMarkAsWatched(movie) {
+    const { id, title, cover_url } = movie;
+    const data = {
+      id,
+      title,
+      cover_url,
+      watched: new Date().toISOString(),
+    };
+
+    const realm = await getRealm();
+
+    realm.write(() => {
+      realm.create('Watched', data);
+    });
+  }
+
   return (
     <Background>
       <Header />
@@ -107,6 +123,9 @@ export default function Movies() {
             keyExtractor={movie => String(movie.id)}
             horizontal
             showsHorizontalScrollIndicator={false}
+            removeClippedSubviews
+            maxToRenderPerBatch={3}
+            initialNumToRender={3}
             renderItem={({ item }) => (
               <Shadow>
                 <TouchableOpacity onPress={() => handleSelectMovie(item.id)}>
@@ -166,14 +185,17 @@ export default function Movies() {
             </CardTop>
             <Text style={styles.title}>{selected.title}</Text>
             <Text style={styles.description}>{selected.overview}</Text>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleMarkAsWatched(selected)}
+            >
               <Text style={styles.buttonText}>Mark as watched!</Text>
             </TouchableOpacity>
           </Card>
         ) : (
           <Card style={{ alignItems: 'center' }}>
             <Text style={{ color: '#D63031', fontSize: 18, letterSpacing: 2 }}>
-              No movies selected
+              {error || 'No movies selected'}
             </Text>
           </Card>
         )}
