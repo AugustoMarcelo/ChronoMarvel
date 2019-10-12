@@ -17,7 +17,10 @@ export default function Watched() {
     async function loadWatchedMovies() {
       const realm = await getRealm();
 
-      const data = realm.objects('Watched').sorted('watched', true);
+      const data = realm
+        .objects('Movie')
+        .filtered('watched != ""')
+        .sorted('watched', true);
 
       setWatched(
         data.map(item => ({
@@ -34,9 +37,12 @@ export default function Watched() {
     }
 
     loadWatchedMovies();
-  }, [watched]);
+  }, []);
 
-  function handleRemoveAll() {
+  async function handleRemoveAll() {
+    const realm = await getRealm();
+    const allMovies = realm.objects('Movie');
+    realm.delete(allMovies);
     setWatched([]);
   }
 
