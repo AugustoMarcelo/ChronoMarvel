@@ -41,8 +41,15 @@ export default function Watched() {
 
   async function handleRemoveAll() {
     const realm = await getRealm();
-    const allMovies = realm.objects('Movie');
-    realm.delete(allMovies);
+    const allMovies = realm
+      .objects('Movie')
+      .filtered('watched != ""')
+      .snapshot();
+    realm.write(() => {
+      allMovies.map(movie => {
+        movie.watched = '';
+      });
+    });
     setWatched([]);
   }
 
