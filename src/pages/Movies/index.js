@@ -148,7 +148,7 @@ export default function Movies() {
           initialNumToRender={3}
           contentContainerStyle={movies.length === 0 && styles.listEmpty}
           renderItem={({ item }) => (
-            <Shadow>
+            <Shadow style={{ opacity: item.watched ? 0.3 : 1 }}>
               <TouchableOpacity onPress={() => handleSelectMovie(item.id)}>
                 <Image style={styles.cover} source={{ uri: item.cover_url }} />
               </TouchableOpacity>
