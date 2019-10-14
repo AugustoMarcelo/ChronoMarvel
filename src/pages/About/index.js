@@ -16,16 +16,16 @@ export default function About() {
       <Card>
         <Paragraph>Hello, Friends</Paragraph>
         <Paragraph>
-          This app was made by a Marvel fan. It is only meant for fans to watch
-          every movie in Marvel's wonderful cinematic universe. The movies are
-          listed in chronological order. As soon as possible, I will enter the
-          series that will debut at Disney+.
+          This app was made by a Marvel fan. It lists all MCU (Marvel Cinematic
+          Universe) movies so you can watch them in chronological order. As soon
+          as possible, the series that will debut at Disney+ will also be
+          included.
         </Paragraph>
         <Paragraph>
           Please feel free to email me with criticism, suggestions, compliments
-          or visit my github. In my repository is all the source code of the
-          application and also the API where I list the movies, series and
-          characters.
+          or visit my github. There you will find the source code of this
+          application, as well as the API (not yet released) where I list all
+          the movies, series and characters of this universe.
         </Paragraph>
         <Separator />
         <View>
