@@ -17,7 +17,8 @@ import getRealm from '../../services/realm';
 
 import Header from '../../components/Header';
 import Background from '../../components/Background';
-import { Shadow, Separator, Card, CardTop, MoreInfo, Button } from './styles';
+import { Card } from '../../components/styles';
+import { Shadow, Separator, CardTop, MoreInfo, Button } from './styles';
 
 const styles = StyleSheet.create({
   list: {

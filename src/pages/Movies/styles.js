@@ -15,14 +15,6 @@ export const Separator = styled.View`
   margin: 10px;
 `;
 
-export const Card = styled.View`
-  margin: 0 10px 10px;
-  padding: 10px;
-  background: #fff;
-  elevation: 2;
-  border-radius: 2px;
-`;
-
 export const CardTop = styled.View`
   flex-direction: row;
 `;
