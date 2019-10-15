@@ -3,7 +3,7 @@
 This application uses MCUAPI to search all movies and list them in chronological order.
 
 ## Prototype Previews
-<div style="display: flex; flex-direction: column;">
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 20px">
   <img src="./previews/preview1.jpg" style="padding: 5px; border: 1px solid #222">
   <img src="./previews/preview2.jpg" style="padding: 5px; border: 1px solid #222">
   <img src="./previews/preview3.jpg" style="padding: 5px; border: 1px solid #222">
