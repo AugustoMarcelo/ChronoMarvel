@@ -1,6 +1,8 @@
-# ChronoMarvel
+<h1 align="center">
+  <img alt="Gympoint" title="ChronoMarvel" src="src/assets/logo.png" width="100px" />
+</h1>
 
-This application uses MCUAPI to search all movies and list them in chronological order.
+<span style="font-weight: bold;">ChronoMarvel</span> uses MCUAPI to retrieve all movies and list them in chronological order. The app doesn't let you watch movies, just lists them and lets you manage which ones have been watched.
 
 ## Prototype Previews
 <div style="display: flex; flex-direction: row;">
