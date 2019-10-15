@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ToastAndroid,
+  RefreshControl,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -16,6 +17,7 @@ import { parseISO, isAfter } from 'date-fns';
 
 import api from '../../services/api';
 import getRealm from '../../services/realm';
+import { isEmptyObject } from '../../utils';
 
 import Header from '../../components/Header';
 import Background from '../../components/Background';
@@ -119,6 +121,16 @@ export default function Movies() {
             )
           );
         }
+
+        // Scrolling to next movie to be watched
+        // const nextMovieIndex = movies.findIndex(movie => {
+        //   return movie.watched === '';
+        // });
+
+        // flatList.current.scrollToIndex({
+        //   animated: true,
+        //   index: nextMovieIndex >= 0 ? nextMovieIndex : 0,
+        // });
       } catch (err) {
         if (err.status === 500) {
           setError('Unable to connect to server');
@@ -127,7 +139,6 @@ export default function Movies() {
     }
 
     loadMovies();
-    // flatList.current.scrollToIndex({ animated: true, index: 5 });
   }, []);
 
   function handleSelectMovie(id) {
@@ -197,7 +208,9 @@ export default function Movies() {
         updatedMovies.forEach(movie => realm.create('Movie', movie, true));
       });
 
-      setSelected(...updatedMovies.filter(movie => movie.id === selected.id));
+      if (!isEmptyObject(selected)) {
+        setSelected(...updatedMovies.filter(movie => movie.id === selected.id));
+      }
 
       ToastAndroid.show('Data updated', ToastAndroid.SHORT);
     } catch (err) {
@@ -230,7 +243,15 @@ export default function Movies() {
   return (
     <Background>
       <Header />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            colors={['#D63031', '#000']}
+            onRefresh={refreshList}
+            refreshing={loading}
+          />
+        }
+      >
         <FlatList
           ref={flatList}
           style={styles.list}
@@ -241,8 +262,6 @@ export default function Movies() {
           removeClippedSubviews
           maxToRenderPerBatch={3}
           initialNumToRender={3}
-          onRefresh={refreshList}
-          refreshing={loading}
           contentContainerStyle={movies.length === 0 && styles.listEmpty}
           renderItem={({ item }) => (
             <Shadow style={{ opacity: item.watched ? 0.3 : 1 }}>
