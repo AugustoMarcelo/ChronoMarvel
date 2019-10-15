@@ -13,7 +13,7 @@ const Routes = createAppContainer(
       About,
     },
     {
-      initialRouteName: 'About',
+      initialRouteName: 'Movies',
       tabBarOptions: {
         keyboardHidesTabBar: true,
         activeTintColor: '#000',
