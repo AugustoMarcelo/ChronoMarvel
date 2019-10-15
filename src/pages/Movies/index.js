@@ -8,9 +8,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { parseISO, isAfter } from 'date-fns';
 
 import api from '../../services/api';
 import getRealm from '../../services/realm';
@@ -43,11 +45,26 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 5,
   },
+  containerTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   title: {
     fontSize: 24,
     color: '#333',
     marginVertical: 5,
     fontWeight: 'bold',
+  },
+  badge: {
+    padding: 5,
+    borderRadius: 4,
+    backgroundColor: '#fdcb6e',
+    color: '#fff',
+    fontWeight: 'bold',
+    elevation: 1,
+    letterSpacing: 1,
+    fontSize: 13,
   },
   description: {
     color: '#444',
@@ -73,6 +90,7 @@ export default function Movies() {
   const [movies, setMovies] = useState([]);
   const [selected, setSelected] = useState({});
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const flatList = useRef(null);
 
@@ -114,8 +132,14 @@ export default function Movies() {
 
   function handleSelectMovie(id) {
     const [movie] = movies.filter(item => item.id === id);
-    // movie.release_date = movie.release_date.split('-', 1)[0];
-    setSelected(movie);
+
+    setSelected({
+      ...movie,
+      released: !isAfter(
+        parseISO(movie.release_date),
+        parseISO(new Date().toISOString())
+      ),
+    });
   }
 
   async function handleMarkAsWatched(movie) {
@@ -133,6 +157,76 @@ export default function Movies() {
     setSelected(data);
   }
 
+  async function refreshList() {
+    setLoading(true);
+
+    try {
+      const updatedMovies = [];
+      // Getting data from api
+      const { data: response } = await api.get('/movies', {
+        params: { order: 'chronology' },
+      });
+
+      // Get realm connection
+      const realm = await getRealm();
+      // Listing saved movies ordered by chronology
+      const localData = realm.objects('Movie').sorted('chronology');
+
+      /**
+       * Setting watched property (and other properties if there are differences)
+       * from api data with value from local data
+       */
+      localData.forEach(localMovie => {
+        const updatedMovie = {
+          ...response.data.filter(
+            responseMovie => responseMovie.id === localMovie.id
+          )[0],
+          watched: '',
+          released: false,
+        };
+        updatedMovie.watched = localMovie.watched;
+        updatedMovie.released = !isAfter(
+          parseISO(updatedMovie.release_date),
+          parseISO(new Date().toISOString())
+        );
+        updatedMovies.push(updatedMovie);
+      });
+
+      // Updating local data with api data updated
+      realm.write(() => {
+        updatedMovies.forEach(movie => realm.create('Movie', movie, true));
+      });
+
+      setSelected(...updatedMovies.filter(movie => movie.id === selected.id));
+
+      ToastAndroid.show('Data updated', ToastAndroid.SHORT);
+    } catch (err) {
+      ToastAndroid.show('Can not connect with server', ToastAndroid.LONG);
+    }
+
+    setLoading(false);
+  }
+
+  function renderButton() {
+    let text;
+    let disabled = true;
+
+    if (selected.watched) {
+      text = 'Watched!';
+    } else if (!selected.released) {
+      text = 'Not released';
+    } else {
+      text = 'Mark as watched!';
+      disabled = false;
+    }
+
+    return (
+      <Button disabled={disabled} onPress={() => handleMarkAsWatched(selected)}>
+        <Text style={styles.buttonText}>{text}</Text>
+      </Button>
+    );
+  }
+
   return (
     <Background>
       <Header />
@@ -147,6 +241,8 @@ export default function Movies() {
           removeClippedSubviews
           maxToRenderPerBatch={3}
           initialNumToRender={3}
+          onRefresh={refreshList}
+          refreshing={loading}
           contentContainerStyle={movies.length === 0 && styles.listEmpty}
           renderItem={({ item }) => (
             <Shadow style={{ opacity: item.watched ? 0.3 : 1 }}>
@@ -198,16 +294,14 @@ export default function Movies() {
                 </View>
               </MoreInfo>
             </CardTop>
-            <Text style={styles.title}>{selected.title}</Text>
+            <View style={styles.containerTitle}>
+              <Text style={styles.title}>{selected.title}</Text>
+              {!selected.released && (
+                <Text style={styles.badge}>Not released yet</Text>
+              )}
+            </View>
             <Text style={styles.description}>{selected.overview}</Text>
-            <Button
-              disabled={!!selected.watched}
-              onPress={() => handleMarkAsWatched(selected)}
-            >
-              <Text style={styles.buttonText}>
-                {selected.watched ? 'Watched!' : 'Mark as watched!'}
-              </Text>
-            </Button>
+            {renderButton()}
           </Card>
         ) : (
           <Card style={{ alignItems: 'center' }}>
